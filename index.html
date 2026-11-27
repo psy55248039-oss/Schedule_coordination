@@ -1,331 +1,377 @@
 <!DOCTYPE html>
-<html lang="ko" class="scroll-smooth">
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>모임쏙 (MoimSsok) - 메신저 기반 단체 일정 조율 AI 솔루션</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>모임쏙 (MoimSsok) - 원클릭 AI 단체 일정 조율</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet" />
   <style>
     body {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: #F3F4F6;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
-    .gradient-text {
-      background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    /* 모바일 앱 컨테이너 뷰 */
+    .mobile-container {
+      max-width: 440px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background-color: #FFFFFF;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.06);
+      display: flex;
+      flex-direction: column;
+    }
+    /* 타임슬롯 히트맵 스타일 */
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    .time-cell {
+      transition: transform 0.1s ease, background-color 0.15s ease;
+    }
+    .time-cell:active {
+      transform: scale(0.95);
+    }
+    /* 스크롤바 숨김 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
   </style>
 </head>
-<body class="bg-white text-gray-900 antialiased">
+<body>
 
-  <!-- 상단 네비게이션 바 -->
-  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
-    <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
-      <a href="#" class="flex items-center gap-2.5">
-        <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-extrabold text-lg shadow-sm">
-          M
-        </div>
-        <span class="font-extrabold text-xl tracking-tight text-gray-900">모임쏙</span>
-      </a>
-
-      <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-gray-600">
-        <a href="#problem" class="hover:text-indigo-600 transition">문제 정의</a>
-        <a href="#pipeline" class="hover:text-indigo-600 transition">핵심 솔루션</a>
-        <a href="#features" class="hover:text-indigo-600 transition">주요 혁신</a>
-        <a href="#tech" class="hover:text-indigo-600 transition">기술 & 로드맵</a>
-      </nav>
-
-      <!-- 대시보드 연결 버튼 -->
-      <a href="dashboard.html" class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm transition">
-        <span>MVP 체험하기</span>
-        <span>→</span>
-      </a>
-    </div>
-  </header>
-
-  <!-- Hero Section -->
-  <section class="relative overflow-hidden pt-16 pb-24 md:pt-24 md:pb-32 bg-gradient-to-b from-indigo-50/70 via-white to-white">
-    <div class="max-w-5xl mx-auto px-5 text-center">
-      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-100/80 text-indigo-700 text-xs font-bold mb-6">
-        <span>⚡ AI 데이터 기반 서비스 기획 MVP</span>
-        <span class="text-indigo-400">|</span>
-        <span>앱 설치 없는 5초 웹 조율</span>
-      </div>
-
-      <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 leading-[1.18]">
-        카톡방 수십 개의 일정 투표,<br />
-        이제 <span class="gradient-text">원클릭 AI 매칭</span>으로 끝내세요
-      </h1>
-
-      <p class="mt-6 text-base md:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-        모바일 조율 프로세스 혁신을 통해 모임 확정률을 극대화합니다.<br class="hidden sm:inline" />
-        회원가입 없는 웹 링크 공유부터 최다 인원 시간 산출, 중간 지점 맛집 추천까지 한 번에 해결하세요.
-      </p>
-
-      <!-- CTA 버튼 그룹 -->
-      <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-        <a href="dashboard.html" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-base shadow-lg shadow-indigo-200 transition flex items-center justify-center gap-2">
-          <span>🚀 지금 바로 일정 조율 대시보드 열기</span>
-        </a>
-        <a href="#pipeline" class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-gray-50 text-gray-700 font-bold text-base border border-gray-200 transition">
-          서비스 구조 살펴보기
-        </a>
-      </div>
-
-      <!-- 대시보드 미리보기 프레임 (클릭 시 이동) -->
-      <div class="mt-16 max-w-4xl mx-auto">
-        <a href="dashboard.html" class="group block relative rounded-3xl border border-gray-200/90 bg-white p-3 shadow-2xl shadow-indigo-100/60 hover:border-indigo-300 transition">
-          <div class="bg-gray-900 rounded-2xl p-6 md:p-8 text-left text-white relative overflow-hidden">
-            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-5">
-              <div>
-                <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider">Interactive Prototype</span>
-                <h3 class="text-lg md:text-xl font-bold mt-1">2학기 캡스톤 디자인 팀플 & 뒤풀이 조율방</h3>
-              </div>
-              <span class="px-4 py-2 rounded-xl bg-indigo-600 group-hover:bg-indigo-500 text-xs font-bold transition">
-                실제 화면에서 터치해보기 →
-              </span>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-4 mt-6">
-              <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700">
-                <p class="text-xs text-gray-400">STEP 02 · 터치 타임테이블</p>
-                <p class="text-sm font-bold mt-1 text-emerald-400">실시간 참여 히트맵 시각화</p>
-                <p class="text-xs text-gray-300 mt-2">가능한 시간대를 터치해 즉시 응답률 반영</p>
-              </div>
-              <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700">
-                <p class="text-xs text-gray-400">STEP 03 · CSP 매칭 엔진</p>
-                <p class="text-sm font-bold mt-1 text-indigo-400">AI 최적 시간 TOP 3 자동 산출</p>
-                <p class="text-xs text-gray-300 mt-2">최다 인원 & 연속 시간 가중치 우선 연산</p>
-              </div>
-              <div class="bg-gray-800/80 p-4 rounded-xl border border-gray-700">
-                <p class="text-xs text-gray-400">FEATURE 03 · 스마트 장소</p>
-                <p class="text-sm font-bold mt-1 text-amber-400">출발지 기반 중간 지점 & 맛집</p>
-                <p class="text-xs text-gray-300 mt-2">환승 거점 계산 및 제휴 플레이스 연결</p>
-              </div>
-            </div>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Problem Statement Section -->
-  <section id="problem" class="py-20 bg-gray-50 border-y border-gray-100">
-    <div class="max-w-6xl mx-auto px-5">
-      <div class="text-center max-w-2xl mx-auto">
-        <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">PROBLEM STATEMENT</span>
-        <h2 class="text-3xl font-extrabold text-gray-900 mt-2">메신저 기반 일정 조율의 구조적 비효율</h2>
-        <p class="text-sm md:text-base text-gray-600 mt-3">
-          단순 텍스트 채팅방에서의 일정 조율은 의사결정 혼선과 시간 리소스 손실을 유발합니다.
-        </p>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-6 mt-12">
-        <div class="bg-white p-7 rounded-2xl border border-gray-200/80 shadow-xs">
-          <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl font-bold mb-5">
-            💬
-          </div>
-          <h3 class="text-lg font-bold text-gray-900">텍스트 기반 피로도</h3>
-          <p class="text-sm text-gray-600 mt-2 leading-relaxed">
-            카카오톡 채팅방 내 수십 개 메시지가 범람하면서 참여자별 가능 의사를 한눈에 파악하기 어렵고 피로감이 가중됩니다.
-          </p>
-        </div>
-
-        <div class="bg-white p-7 rounded-2xl border border-gray-200/80 shadow-xs">
-          <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold mb-5">
-            ⏳
-          </div>
-          <h3 class="text-lg font-bold text-gray-900">평균 4.2일 소요 · 이탈률 38%</h3>
-          <p class="text-sm text-gray-600 mt-2 leading-relaxed">
-            최종 일정 결정까지 평균 4.2일이 걸리며, 지연되는 과정에서 중간 참여자 이탈률이 38%에 달해 모임 결성이 실패합니다.
-          </p>
-        </div>
-
-        <div class="bg-white p-7 rounded-2xl border border-gray-200/80 shadow-xs">
-          <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold mb-5">
-            🤯
-          </div>
-          <h3 class="text-lg font-bold text-gray-900">주동자(리더) 부담 가중</h3>
-          <p class="text-sm text-gray-600 mt-2 leading-relaxed">
-            일정을 취합하고 독촉하는 모임 리더에게 감정적·행정적 부담이 누적되고 약속 파기율이 상승합니다.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Core Feature 01: 5-Step Pipeline -->
-  <section id="pipeline" class="py-20 bg-white">
-    <div class="max-w-6xl mx-auto px-5">
-      <div class="text-center max-w-2xl mx-auto">
-        <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">CORE FEATURE 01</span>
-        <h2 class="text-3xl font-extrabold text-gray-900 mt-2">원클릭 일정 조율 5단계 파이프라인</h2>
-        <p class="text-sm md:text-base text-gray-600 mt-3">
-          방 개설부터 개인 캘린더 동기화까지 끊김 없는(Seamless) 모바일 경험을 제공합니다.
-        </p>
-      </div>
-
-      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-12">
-        <div class="p-5 rounded-2xl bg-indigo-50/60 border border-indigo-100">
-          <span class="text-xs font-extrabold text-indigo-600">STEP 01</span>
-          <h3 class="text-base font-bold text-gray-900 mt-1.5">링크 생성</h3>
-          <p class="text-xs text-gray-600 mt-2 leading-relaxed">모임명 입력 후 3초 만에 전용 조율방 개설</p>
-        </div>
-        <div class="p-5 rounded-2xl bg-indigo-50/60 border border-indigo-100">
-          <span class="text-xs font-extrabold text-indigo-600">STEP 02</span>
-          <h3 class="text-base font-bold text-gray-900 mt-1.5">가능 시간 선택</h3>
-          <p class="text-xs text-gray-600 mt-2 leading-relaxed">모바일 화면에서 터치 방식으로 직관적 시간 표기</p>
-        </div>
-        <div class="p-5 rounded-2xl bg-indigo-600 text-white shadow-md">
-          <span class="text-xs font-extrabold text-indigo-200">STEP 03</span>
-          <h3 class="text-base font-bold mt-1.5">AI 최적 매칭</h3>
-          <p class="text-xs text-indigo-100 mt-2 leading-relaxed">Greedy & CSP 알고리즘 기반 최다 인원 시간 산출</p>
-        </div>
-        <div class="p-5 rounded-2xl bg-indigo-50/60 border border-indigo-100">
-          <span class="text-xs font-extrabold text-indigo-600">STEP 04</span>
-          <h3 class="text-base font-bold text-gray-900 mt-1.5">자동 알림 확정</h3>
-          <p class="text-xs text-gray-600 mt-2 leading-relaxed">확정된 최종 일정을 카카오톡 메신저로 즉시 전송</p>
-        </div>
-        <div class="p-5 rounded-2xl bg-indigo-50/60 border border-indigo-100">
-          <span class="text-xs font-extrabold text-indigo-600">STEP 05</span>
-          <h3 class="text-base font-bold text-gray-900 mt-1.5">캘린더 동기화</h3>
-          <p class="text-xs text-gray-600 mt-2 leading-relaxed">Google / Apple 개인 캘린더(.ics) 양방향 연동</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Key Innovation: Feature 02 & 03 -->
-  <section id="features" class="py-20 bg-gray-900 text-white">
-    <div class="max-w-6xl mx-auto px-5">
-      <div class="mb-12">
-        <span class="text-xs font-extrabold text-indigo-400 tracking-wider uppercase">KEY INNOVATION</span>
-        <h2 class="text-3xl font-extrabold mt-2">사용자 경험(UX) 혁신 포인트</h2>
-      </div>
-
-      <div class="grid md:grid-cols-2 gap-8">
-        <div class="p-8 rounded-3xl bg-gray-800/70 border border-gray-700">
-          <span class="inline-block px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold">
-            FEATURE 02
-          </span>
-          <h3 class="text-2xl font-bold mt-4">앱 설치 없는 Web-based 접근성</h3>
-          <p class="text-sm text-gray-300 mt-3 leading-relaxed">
-            카카오톡·라인 개방형 링크를 통해 별도의 앱 다운로드나 복잡한 회원가입 절차 없이 <strong class="text-white">5초 이내 즉각 참여</strong>가 가능합니다. 모임 조율의 초기 진입 장벽을 전면 제거했습니다.
-          </p>
-        </div>
-
-        <div class="p-8 rounded-3xl bg-gray-800/70 border border-gray-700">
-          <span class="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold">
-            FEATURE 03
-          </span>
-          <h3 class="text-2xl font-bold mt-4">스마트 장소 및 메뉴 추천</h3>
-          <p class="text-sm text-gray-300 mt-3 leading-relaxed">
-            일정 확정 이후에도 이어지는 '어디서 만날까?'의 고민까지 해결합니다. 참여자들의 출발지를 분석해 <strong class="text-white">최적 중간 지점(환승 거점)</strong>을 계산하고 취향에 맞는 맛집·카페·스터디룸을 자동 추천합니다.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Tech Spec & Roadmap -->
-  <section id="tech" class="py-20 bg-white">
-    <div class="max-w-6xl mx-auto px-5">
-      <div class="grid lg:grid-cols-2 gap-12">
-        <!-- 기술 아키텍처 -->
-        <div>
-          <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">TECHNICAL SPECIFICATION</span>
-          <h2 class="text-2xl font-extrabold text-gray-900 mt-2 mb-6">핵심 기술 아키텍처 스펙</h2>
-          <div class="space-y-3">
-            <div class="p-4 rounded-2xl border border-gray-200 flex items-start justify-between gap-4">
-              <div>
-                <h4 class="text-sm font-bold text-gray-900">알고리즘 Engine</h4>
-                <p class="text-xs text-gray-500 mt-0.5">Greedy & Constraint Satisfaction Problem (CSP)</p>
-              </div>
-              <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg shrink-0">실시간 최적 연산</span>
-            </div>
-            <div class="p-4 rounded-2xl border border-gray-200 flex items-start justify-between gap-4">
-              <div>
-                <h4 class="text-sm font-bold text-gray-900">카카오톡 연동</h4>
-                <p class="text-xs text-gray-500 mt-0.5">Kakao Link API & Open Graph Protocol</p>
-              </div>
-              <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg shrink-0">인앱 브라우저 최적화</span>
-            </div>
-            <div class="p-4 rounded-2xl border border-gray-200 flex items-start justify-between gap-4">
-              <div>
-                <h4 class="text-sm font-bold text-gray-900">인프라 및 서버</h4>
-                <p class="text-xs text-gray-500 mt-0.5">AWS Serverless (Lambda, DynamoDB)</p>
-              </div>
-              <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg shrink-0">자동 스케일링</span>
-            </div>
-            <div class="p-4 rounded-2xl border border-gray-200 flex items-start justify-between gap-4">
-              <div>
-                <h4 class="text-sm font-bold text-gray-900">캘린더 연동</h4>
-                <p class="text-xs text-gray-500 mt-0.5">Google / Apple Calendar iCal Integration</p>
-              </div>
-              <span class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg shrink-0">양방향 동기화</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 3단계 실행 로드맵 -->
-        <div>
-          <span class="text-xs font-extrabold text-indigo-600 tracking-wider uppercase">EXECUTION PLAN</span>
-          <h2 class="text-2xl font-extrabold text-gray-900 mt-2 mb-6">초기 MVP 구축 3단계 로드맵</h2>
-          <div class="space-y-4">
-            <div class="p-5 rounded-2xl bg-indigo-50/70 border-l-4 border-indigo-600">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-extrabold text-indigo-600">STAGE 01 · 1~2주차 (현재 단계)</span>
-                <span class="text-[11px] font-bold bg-indigo-600 text-white px-2 py-0.5 rounded">구현 완료</span>
-              </div>
-              <h4 class="text-base font-bold text-gray-900 mt-1">Prompt-based PoC</h4>
-              <p class="text-xs text-gray-600 mt-1">모바일 웹 기반 캘린더 인터페이스 구축 및 1차 AI 매칭 알고리즘 검증</p>
-            </div>
-
-            <div class="p-5 rounded-2xl bg-gray-50 border-l-4 border-gray-300">
-              <span class="text-xs font-extrabold text-gray-500">STAGE 02 · 3~5주차</span>
-              <h4 class="text-base font-bold text-gray-900 mt-1">Matching 파이프라인 고도화</h4>
-              <p class="text-xs text-gray-600 mt-1">카카오톡 공유 웹훅 연동 및 다수 참여자 실시간 응답 취합 UI 개발</p>
-            </div>
-
-            <div class="p-5 rounded-2xl bg-gray-50 border-l-4 border-gray-300">
-              <span class="text-xs font-extrabold text-gray-500">STAGE 03 · 6~8주차</span>
-              <h4 class="text-base font-bold text-gray-900 mt-1">클로즈드 베타 (CBT)</h4>
-              <p class="text-xs text-gray-600 mt-1">대학생 동아리·동창 모임 100팀 대상 실전 테스트 및 피드백 수집</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Bottom CTA Banner -->
-  <section class="py-16 bg-indigo-600 text-white text-center">
-    <div class="max-w-3xl mx-auto px-5">
-      <h2 class="text-2xl md:text-3xl font-extrabold">지금 바로 AI 일정 조율 프로토타입을 경험해보세요</h2>
-      <p class="text-sm md:text-base text-indigo-100 mt-3">
-        타임테이블 터치부터 AI 최적 시간 산출, 중간 지점 추천 및 .ics 캘린더 다운로드까지 직접 테스트할 수 있습니다.
-      </p>
-      <div class="mt-8">
-        <a href="dashboard.html" class="inline-flex items-center gap-2 bg-white text-indigo-600 hover:bg-indigo-50 font-extrabold text-base px-8 py-4 rounded-2xl shadow-lg transition">
-          <span>대시보드(dashboard.html)로 이동하기</span>
-          <span>→</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="py-8 bg-gray-950 text-gray-400 text-xs">
-    <div class="max-w-6xl mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="font-semibold text-gray-300">
-        모임쏙 (MoimSsok) · AI 데이터 기반 서비스 기획 중간 과제
+<div class="mobile-container" id="app">
+  <!-- 상단 헤더 -->
+  <header class="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-gray-100 px-5 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
+        M
       </div>
       <div>
-        2025981012 박서연 · All Rights Reserved.
+        <span class="font-bold text-gray-900 tracking-tight text-base">모임쏙</span>
+        <span class="ml-1.5 text-[11px] font-medium px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600">Beta MVP</span>
       </div>
     </div>
-  </footer>
+    <button onclick="openCreateModal()" class="text-xs font-semibold bg-gray-900 text-white px-3 py-1.5 rounded-lg hover:bg-gray-800 transition">
+      + 3초 새 방 개설
+    </button>
+  </header>
 
+  <!-- 모임 정보 배너 (STEP 01 결과) -->
+  <section class="px-5 pt-5 pb-4 bg-gradient-to-b from-indigo-50/70 to-white">
+    <div class="flex items-center justify-between mb-1.5">
+      <span class="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 bg-indigo-100/80 px-2.5 py-0.5 rounded-full">
+        ⚡ 회원가입 없는 웹 링크 조율
+      </span>
+      <span class="text-xs text-gray-500" id="participant-count-badge">참여 0명</span>
+    </div>
+    <h1 class="text-xl font-extrabold text-gray-900 leading-snug" id="room-title">
+      새 모임을 만들어주세요
+    </h1>
+    <p class="text-xs text-gray-500 mt-1" id="room-desc">
+      새 방을 만들거나 초대 링크로 접속하세요.
+    </p>
+
+    <!-- 내 프로필 빠른 입력 (5초 이내 즉각 참여) -->
+    <div class="mt-4 bg-white p-3 rounded-xl border border-gray-200/80 shadow-xs flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 flex-1">
+        <span class="text-sm">🙋‍♂️</span>
+        <input
+          type="text"
+          id="user-name"
+          value=""
+          placeholder="이름 입력 (예: 김민수)"
+          class="text-sm font-semibold text-gray-800 w-full focus:outline-none"
+        />
+      </div>
+      <div class="flex items-center gap-1.5 border-l border-gray-200 pl-2.5">
+        <span class="text-xs text-gray-400">출발지:</span>
+        <select id="user-station"  class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md focus:outline-none">
+          <option value="부산대역">부산대역</option>
+          <option value="서면역">서면역</option>
+          <option value="경성대·부경대역">경성대·부경대역</option>
+          <option value="해운대역">해운대역</option>
+          <option value="남포역">남포역</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex gap-2 mt-2">
+      <button id="save-profile" onclick="saveProfile()" class="disabled:opacity-40 text-xs rounded-lg bg-indigo-50 text-indigo-700 px-3 py-2 font-semibold">이름·출발역 저장</button>
+      <div id="join-panel" class="hidden"><button onclick="joinRoom()" class="text-xs rounded-lg bg-indigo-600 text-white px-3 py-2 font-bold">모임 참여하기</button></div>
+    </div>
+    <p id="connection-status" role="status" class="text-[11px] text-gray-500 mt-2">연결 중...</p>
+  </section>
+
+  <!-- 탭 네비게이션 -->
+  <nav class="px-5 border-b border-gray-100 flex gap-6 text-sm font-semibold">
+    <button onclick="switchTab('schedule')" id="tab-schedule" class="pb-2.5 border-b-2 border-indigo-600 text-indigo-600">
+      1. 시간 선택 & 일정 매칭
+    </button>
+    <button onclick="switchTab('place')" id="tab-place" class="pb-2.5 border-b-2 border-transparent text-gray-400 hover:text-gray-600">
+      2. 중간 지점 & 맛집 추천
+    </button>
+  </nav>
+
+  <!-- 메인 콘텐츠 영역 -->
+  <main class="flex-1 px-5 py-4 overflow-y-auto">
+    
+    <!-- [TAB 1] 원클릭 시간 선택 및 AI 매칭 -->
+    <div id="view-schedule" class="space-y-5">
+      
+      <!-- 범례 및 모드 안내 -->
+      <div class="flex items-center justify-between text-xs text-gray-500">
+        <span>칸을 터치하여 내 가능 시간 표기</span>
+        <div class="flex items-center gap-1.5">
+          <span>적음</span>
+          <span class="w-3 h-3 rounded bg-gray-100 border border-gray-200"></span>
+          <span class="w-3 h-3 rounded bg-indigo-200"></span>
+          <span class="w-3 h-3 rounded bg-indigo-400"></span>
+          <span class="w-3 h-3 rounded bg-indigo-600"></span>
+          <span>전원</span>
+        </div>
+      </div>
+
+      <!-- 타임테이블 그리드 (STEP 02) -->
+      <div class="bg-white rounded-2xl border border-gray-200 p-3 shadow-xs">
+        <div class="grid grid-cols-6 gap-1.5 text-center mb-2" id="grid-header">
+          <div class="text-[11px] font-medium text-gray-400 self-end pb-1">시간</div>
+          <!-- 날짜 헤더 JS 렌더링 -->
+        </div>
+        <div class="space-y-1.5" id="timetable-grid">
+          <!-- 시간 슬롯 JS 렌더링 -->
+        </div>
+      </div>
+
+      <!-- STEP 03: AI 최적 매칭 결과 카드 (Greedy & CSP 컨셉) -->
+      <div class="bg-gray-900 text-white rounded-2xl p-4 shadow-md">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-bold px-2 py-0.5 rounded bg-indigo-500 text-white">일정 매칭 TOP 3</span>
+            <span class="text-[11px] text-gray-400">참여 인원 기준</span>
+          </div>
+          <span class="text-[11px] text-emerald-400 font-medium" id="best-rate">응답 대기</span>
+        </div>
+        
+        <div id="ai-best-slots" class="space-y-2 mt-3">
+          <!-- AI 추천 시간대 리스트 JS 렌더링 -->
+        </div>
+      </div>
+
+      <!-- STEP 04 & 05: 자동 알림 확정 및 캘린더 동기화 -->
+      <div class="grid grid-cols-2 gap-2.5 pt-1 pb-6">
+        <button id="share-btn" onclick="shareKakaoMock()" class="flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl bg-[#FEE500] text-[#191919] font-bold text-xs shadow-xs hover:brightness-95 transition">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.48 3 2 6.58 2 11c0 2.84 1.87 5.33 4.68 6.75-.15.54-.96 3.47-.99 3.69 0 0-.02.17.09.24.11.07.24.02.24.02.32-.04 3.7-2.44 4.28-2.86.55.08 1.12.12 1.7.12 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/></svg>
+          카톡 공유 링크 복사
+        </button>
+        <button id="confirm-btn" onclick="confirmSchedule()" class="flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-xs hover:bg-indigo-700 transition">
+          📅 확정 & 캘린더 연동
+        </button>
+      </div>
+    </div>
+
+    <!-- [TAB 2] 스마트 장소 및 메뉴 추천 (FEATURE 03) -->
+    <div id="view-place" class="hidden space-y-5 pb-6">
+      <!-- 참여자 출발지 현황 -->
+      <div class="bg-indigo-50/70 rounded-2xl p-4 border border-indigo-100">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-indigo-900">📍 참여자 출발지 기반 중간 지점 분석</span>
+          <span class="text-[11px] text-indigo-600 font-semibold">간이 거점 추천</span>
+        </div>
+        <div class="flex flex-wrap gap-1.5 mb-3" id="station-chips">
+          <!-- 출발지 칩 렌더링 -->
+        </div>
+        <div class="bg-white rounded-xl p-3.5 border border-indigo-100 flex items-center justify-between">
+          <div>
+            <p class="text-[11px] text-gray-400">추천 환승 거점</p>
+            <p class="text-lg font-extrabold text-gray-900 mt-0.5" id="midpoint-station">참여자 출발지 대기 중</p>
+          </div>
+          <span class="text-xs font-semibold bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-lg">
+            간이 추천
+          </span>
+        </div>
+      </div>
+
+      <!-- 취향 맞춤 맛집/카페 추천 리스트 (수익 모델: 제휴 예약 연동 컨셉) -->
+      <div>
+        <div class="flex items-center justify-between mb-2.5">
+          <h3 class="text-sm font-bold text-gray-900">🍽️ 모임 성격 맞춤 추천 플레이스</h3>
+          <span class="text-[11px] text-gray-400">등록된 장소</span>
+        </div>
+        <div class="space-y-2.5" id="place-list">
+          <!-- 추천 장소 카드 JS 렌더링 -->
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- 새 방 개설 모달 (STEP 01: 3초 링크 생성) -->
+<div id="create-modal" class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl">
+    <h2 class="text-lg font-bold text-gray-900">⚡ 3초 만에 새 조율방 개설</h2>
+    <p class="text-xs text-gray-500 mt-1">모임 이름과 시작일을 선택하면 공유 링크가 생성됩니다.</p>
+    <div class="mt-4 space-y-3">
+      <div>
+        <label class="text-xs font-semibold text-gray-700">모임 이름</label>
+        <input type="text" id="new-room-input" placeholder="예: 마케팅 학회 정기 회의" class="mt-1 w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:outline-none focus:border-indigo-600" />
+      </div>
+    </div>
+    <div class="mt-3"><label for="new-room-date" class="text-xs font-semibold text-gray-700">일정 시작일 (5일간)</label><input type="date" id="new-room-date" class="mt-1 w-full px-3 py-2 text-sm border border-gray-300 rounded-xl" /></div>
+    <div class="mt-5 flex gap-2">
+      <button onclick="closeCreateModal()" class="flex-1 py-2.5 text-xs font-semibold text-gray-600 bg-gray-100 rounded-xl">취소</button>
+      <button onclick="createNewRoom()" class="flex-1 py-2.5 text-xs font-bold text-white bg-indigo-600 rounded-xl">방 생성하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 토스트 알림 -->
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden bg-gray-900 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg transition-opacity">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// 새 모임쏙 프로젝트의 값만 입력하세요 (secret/service_role 키 금지).
+const SUPABASE_URL = 'https://weigqhybokjtohsbquju.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_X6DM0yAbLR5BMthjMGhuew_-3PYBgaB';
+let db, user, room, me, participants = [], slots = [], availability = [], places = [];
+let selected = null, busy = false, loading = false, channel, poll, generation = 0;
+const $ = id => document.getElementById(id);
+const HOURS = ['14:00','16:00','18:00','19:00','20:00','21:00'];
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uuid = v => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v || '');
+const check = ({data,error}) => { if(error) throw error; return data; };
+const dayText = d => new Intl.DateTimeFormat('ko-KR',{month:'numeric',day:'numeric',weekday:'short',timeZone:'Asia/Seoul'}).format(new Date(d+'T12:00:00+09:00'));
+const kstDate = (offset=0) => new Date(Date.now()+(9+24*offset)*3600000).toISOString().slice(0,10);
+const addDay = (date,n) => new Date(Date.parse(date+'T00:00:00Z')+n*86400000).toISOString().slice(0,10);
+const clock = s => s.slot_time.slice(0,5);
+const instant = s => new Date(s.slot_date+'T'+clock(s)+':00+09:00').toISOString();
+const roomLink = id => { const u = new URL(location.href); u.searchParams.set('room',id); u.hash=''; return u.href; };
+function status(msg){ $('connection-status').textContent=msg; }
+function showToast(msg){ $('toast').textContent=msg; $('toast').classList.remove('hidden'); clearTimeout(window.toastTimer); window.toastTimer=setTimeout(()=>$('toast').classList.add('hidden'),4000); }
+function report(e){ console.error(e); status('오류: '+(e.message || e)); showToast(e.message || String(e)); }
+async function action(fn){ if(!db || !user){showToast('Supabase 연결을 먼저 확인해주세요.');return;} if(busy)return; busy=true; try{await fn();}catch(e){report(e);}finally{busy=false;render();} }
+function openCreateModal(){ $('new-room-date').value=kstDate(1); $('new-room-date').min=kstDate(); $('create-modal').classList.remove('hidden'); }
+function closeCreateModal(){ $('create-modal').classList.add('hidden'); }
+function switchTab(tab){ const a=tab==='schedule'; $('view-schedule').classList.toggle('hidden',!a); $('view-place').classList.toggle('hidden',a); $('tab-schedule').className='pb-2.5 border-b-2 '+(a?'border-indigo-600 text-indigo-600':'border-transparent text-gray-400'); $('tab-place').className='pb-2.5 border-b-2 '+(!a?'border-indigo-600 text-indigo-600':'border-transparent text-gray-400'); }
+function profile(){ const name=$('user-name').value.trim(); if(!name)throw Error('이름을 입력해주세요.'); return {name,station:$('user-station').value}; }
+async function init(){
+ render();
+ if(SUPABASE_URL.includes('YOUR_PROJECT') || SUPABASE_KEY.includes('YOUR_')){status('Supabase URL 및 Publishable Key를 입력해주세요.');return;}
+ try{
+  db=window.supabase.createClient(SUPABASE_URL.replace(/\/$/,''),SUPABASE_KEY);
+  let session=check(await db.auth.getSession()).session;
+  if(!session) session=check(await db.auth.signInAnonymously()).session;
+  if(!session)throw Error('익명 로그인에 실패했습니다.'); user=session.user;
+  status('Supabase 연결 완료');
+  const id=new URL(location.href).searchParams.get('room');
+  if(id){if(!uuid(id))throw Error('올바르지 않은 모임 링크입니다.'); await openRoom(id);}
+  else render();
+ }catch(e){report(e);}
+}
+async function openRoom(id){
+ generation++; const g=generation;
+ if(channel){await db.removeChannel(channel);channel=null;} clearInterval(poll);
+ room=null;me=null;participants=[];slots=[];availability=[];places=[];selected=null;
+ $('join-panel').classList.add('hidden');
+ const r=check(await db.from('rooms').select('*').eq('id',id).maybeSingle());
+ if(g!==generation)return;
+ if(!r){$('join-panel').classList.remove('hidden'); $('room-title').textContent='초대받은 모임'; $('room-desc').textContent='이름과 출발역을 입력하고 모임에 참여하세요.'; render();return;}
+ room=r;
+ await refresh();
+ if(!me){$('join-panel').classList.remove('hidden');}
+ else { $('user-name').value=me.name; $('user-station').value=me.station || '부산대역'; }
+ channel=db.channel('moim-'+id+'-'+g);
+ for(const table of ['rooms','participants','time_slots','availability']){
+  channel.on('postgres_changes',{event:'*',schema:'public',table,filter:table==='rooms'?'id=eq.'+id:'room_id=eq.'+id},()=>{if(!busy) refresh().catch(report);});
+ }
+ channel.subscribe();
+ // DELETE 이벤트 및 연결 끊김 보완을 위한 주기적 조회
+ poll=setInterval(()=>{if(!busy && room)refresh().catch(report);},5000);
+}
+async function refresh(){
+ if(!room || loading)return; loading=true; const id=room.id,g=generation;
+ try{
+ const results=await Promise.all([
+ db.from('rooms').select('*').eq('id',id).single(),
+ db.from('participants').select('*').eq('room_id',id).order('created_at'),
+ db.from('time_slots').select('*').eq('room_id',id).order('slot_date').order('slot_time'),
+ db.from('availability').select('participant_id,slot_id').eq('room_id',id),
+ db.from('places').select('*').order('name')]);
+ const data=results.map(check); if(g!==generation)return;
+ [room,participants,slots,availability,places]=data; me=participants.find(p=>p.user_id===user.id)||null;
+ if(me)$('join-panel').classList.add('hidden');
+ status('Supabase 연결 완료 · 일정 자동 갱신'); render();
+ }finally{loading=false;}
+}
+async function createNewRoom(){await action(async()=>{
+ const title=$('new-room-input').value.trim(), start=$('new-room-date').value;
+ if(!title)throw Error('모임 이름을 입력해주세요.'); if(!start || start<kstDate())throw Error('오늘 이후 시작일을 선택해주세요.');
+ const id=crypto.randomUUID(); const p={name:$('user-name').value.trim()||'방장',station:$('user-station').value};
+ check(await db.from('rooms').insert({id,owner_id:user.id,title}));
+ const rows=Array.from({length:5},(_,i)=>HOURS.map(slot_time=>({room_id:id,slot_date:addDay(start,i),slot_time}))).flat();
+ check(await db.from('time_slots').insert(rows));
+ check(await db.from('participants').insert({room_id:id,user_id:user.id,...p}));
+ history.replaceState(null,'',roomLink(id)); closeCreateModal(); await openRoom(id); showToast('모임방이 생성되었습니다. 링크를 공유하세요!');
+ });}
+async function joinRoom(){await action(async()=>{
+ const id=room?.id || new URL(location.href).searchParams.get('room'); if(!uuid(id))throw Error('올바르지 않은 초대 링크입니다.');
+ // INSERT에 RETURNING을 사용하지 않음: 참여 전에는 방 조회 권한이 없음.
+ const result=await db.from('participants').insert({room_id:id,user_id:user.id,...profile()});
+ if(result.error && result.error.code!=='23505')throw result.error;
+ await openRoom(id); if(!me)throw Error('모임 참여를 확인하지 못했습니다.'); showToast('모임에 참여했습니다.');
+ });}
+async function saveProfile(){await action(async()=>{if(!me)throw Error('모임에 먼저 참여해주세요.');check(await db.from('participants').update(profile()).eq('id',me.id)); await refresh();showToast('이름과 출발역을 저장했습니다.');});}
+function usersFor(id){const ids=new Set(availability.filter(a=>a.slot_id===id).map(a=>a.participant_id));return participants.filter(p=>ids.has(p.id));}
+async function toggleSlot(id){await action(async()=>{
+ if(!me)throw Error('모임에 먼저 참여해주세요.');if(room.confirmed_at)throw Error('이미 확정된 모임입니다.');
+ const exists=availability.some(a=>a.participant_id===me.id&&a.slot_id===id);
+ if(exists){check(await db.from('availability').delete().eq('participant_id',me.id).eq('slot_id',id)); availability=availability.filter(a=>!(a.participant_id===me.id&&a.slot_id===id));}
+ else {check(await db.from('availability').upsert({room_id:room.id,participant_id:me.id,slot_id:id},{onConflict:'participant_id,slot_id',ignoreDuplicates:true}));availability.push({participant_id:me.id,slot_id:id});}
+ await refresh();
+ });}
+function render(){
+ if(room){$('room-title').textContent=room.title; $('room-desc').textContent=room.confirmed_at?'확정 일정: '+new Date(room.confirmed_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}):'가능한 시간대를 선택하면 참여 인원 기준으로 추천합니다.';}
+ $('participant-count-badge').textContent='참여 '+participants.length+'명';
+ $('save-profile').disabled=!me || busy;
+ $('share-btn').disabled=!room || busy; $('confirm-btn').disabled=!room || busy || (!room.confirmed_at && room.owner_id!==user?.id);
+ $('confirm-btn').textContent=room?.confirmed_at?'📅 캘린더 다운로드':'📅 확정 & 캘린더 연동';
+ const dates=[...new Set(slots.map(s=>s.slot_date))], hours=[...new Set(slots.map(clock))].sort();
+ const header=$('grid-header'); header.style.gridTemplateColumns=`repeat(${dates.length+1},minmax(0,1fr))`;
+ header.innerHTML='<div class="text-[11px] text-gray-400">시간</div>'+dates.map(d=>`<div class="text-[11px] font-bold text-gray-700">${esc(dayText(d))}</div>`).join('');
+ const grid=$('timetable-grid');grid.replaceChildren();
+ if(!slots.length)grid.textContent='새 방을 만들거나 초대 링크로 참여해주세요.';
+ for(const hour of hours){const row=document.createElement('div');row.className='grid gap-1.5 items-center';row.style.gridTemplateColumns=`repeat(${dates.length+1},minmax(0,1fr))`;row.innerHTML=`<div class="text-[11px] text-gray-400 text-center">${esc(hour)}</div>`;
+ for(const d of dates){const s=slots.find(x=>x.slot_date===d&&clock(x)===hour);const b=document.createElement('button');if(!s){row.append(b);continue;} const n=usersFor(s.id).length,total=participants.length,ratio=total?n/total:0,mine=availability.some(a=>a.participant_id===me?.id&&a.slot_id===s.id);
+ const c=ratio===1?'bg-indigo-600 text-white':ratio>=.66?'bg-indigo-400 text-white':ratio>=.33?'bg-indigo-200 text-indigo-800':ratio>0?'bg-indigo-100 text-indigo-700':'bg-gray-50 text-gray-400';
+ b.className='time-cell h-9 rounded-lg border border-gray-200 text-[11px] '+c+(mine?' ring-2 ring-amber-400 ring-offset-1':'');b.textContent=n+'/'+total;b.title=usersFor(s.id).map(p=>p.name).join(', ');b.disabled=!me||busy||!!room?.confirmed_at;b.onclick=()=>toggleSlot(s.id);row.append(b);} grid.append(row);}
+ calculateAIMatching(); updateRecommendation();
+}
+function calculateAIMatching(){
+ const top=slots.map(s=>({s,users:usersFor(s.id)})).filter(x=>x.users.length).sort((a,b)=>b.users.length-a.users.length||instant(a.s).localeCompare(instant(b.s))).slice(0,3);
+ if(!top.some(x=>x.s.id===selected))selected=top[0]?.s.id||null;
+ $('best-rate').textContent=top.length?'최대 '+Math.round(top[0].users.length/participants.length*100)+'% 일치':'응답 대기';
+ const list=$('ai-best-slots');list.replaceChildren();if(!top.length)list.textContent='참여자가 가능 시간을 선택하면 추천 일정이 표시됩니다.';
+ top.forEach((x,i)=>{const b=document.createElement('button');b.className='w-full text-left p-2.5 rounded-xl flex items-center justify-between '+(selected===x.s.id?'bg-indigo-600':'bg-gray-800');b.innerHTML=`<div><span class="text-xs font-bold">${i+1}순위 · ${esc(dayText(x.s.slot_date))} ${esc(clock(x.s))}</span><p class="text-[11px] text-gray-200">참여: ${esc(x.users.map(p=>p.name).join(', '))}</p></div><span class="text-xs font-bold">${x.users.length}/${participants.length}명</span>`;b.onclick=()=>{selected=x.s.id;calculateAIMatching();};list.append(b);});
+}
+function updateRecommendation(){
+ const stations=participants.map(p=>p.station).filter(Boolean); $('station-chips').innerHTML=stations.map(s=>`<span class="text-xs bg-white px-2 py-1 rounded-full">🚇 ${esc(s)}</span>`).join('');
+ let mid='서면역'; if(stations.length&&stations.every(s=>s===stations[0]))mid=stations[0]; else if(stations.length&&stations.every(s=>['해운대역','경성대·부경대역'].includes(s)))mid='수영역';
+ $('midpoint-station').textContent=stations.length?mid:'참여자 출발지 대기 중';
+ const list=$('place-list');list.replaceChildren(); const matches=stations.length?places.filter(p=>p.station===mid):[];
+ if(!matches.length){list.textContent='추천 거점에 등록된 장소가 없습니다.';return;}
+ for(const p of matches){const div=document.createElement('div');div.className='bg-white p-3.5 rounded-2xl border border-gray-200';div.innerHTML=`<p class="text-sm font-bold">${esc(p.name)}</p><p class="text-xs text-gray-500">${esc(p.category)} · ${esc(p.address)}</p><p class="text-xs text-gray-500">${esc(p.description)} ${esc(p.discount)}</p>`;try{const url=new URL(p.reservation_url);if(url.protocol==='https:'||url.protocol==='http:'){const a=document.createElement('a');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';a.className='text-xs text-indigo-600';a.textContent='장소 링크 열기';div.append(a);}}catch{}list.append(div);}
+}
+async function shareKakaoMock(){if(!room)return;const link=roomLink(room.id);try{await navigator.clipboard.writeText(link);showToast('초대 링크 복사 완료! 카카오톡에 붙여넣어 공유하세요.');}catch{window.prompt('초대 링크를 복사하세요.',link);}}
+function icsEscape(s){return String(s).replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');}
+function icsDate(d){return new Date(d).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');}
+function downloadCalendar(at){const content=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//MoimSsok//KO','BEGIN:VEVENT','UID:'+room.id+'@moimssok','DTSTAMP:'+icsDate(new Date()),'DTSTART:'+icsDate(at),'DTEND:'+icsDate(new Date(Date.parse(at)+3600000)),'SUMMARY:'+icsEscape(room.title),'END:VEVENT','END:VCALENDAR'].join('\r\n')+'\r\n';const url=URL.createObjectURL(new Blob([content],{type:'text/calendar;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='moim_schedule.ics';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+async function confirmSchedule(){await action(async()=>{if(!room)return;if(room.confirmed_at){downloadCalendar(room.confirmed_at);return;}if(room.owner_id!==user.id)throw Error('방장만 일정을 확정할 수 있습니다.');const s=slots.find(x=>x.id===selected);if(!s)throw Error('추천 일정을 선택해주세요.');if(!window.confirm(dayText(s.slot_date)+' '+clock(s)+' 일정으로 확정할까요?'))return;const at=instant(s);check(await db.from('rooms').update({confirmed_at:at}).eq('id',room.id));room.confirmed_at=at;await refresh();downloadCalendar(at);showToast('일정 확정 및 캘린더 파일 다운로드 완료');});}
+init();
+
+</script>
 </body>
 </html>
